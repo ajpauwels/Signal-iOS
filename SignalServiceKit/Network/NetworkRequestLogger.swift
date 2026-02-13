@@ -20,6 +20,16 @@ public class NetworkRequestLogger {
 
     public var logFileUrl: URL { logFileURL }
 
+    public func resolveTrigger() -> String {
+        if CurrentAppContext().isNSE {
+            return "push"
+        } else if CurrentAppContext().isInBackground() {
+            return "background"
+        } else {
+            return "user"
+        }
+    }
+
     public func log(
         protocol proto: String,
         direction: String,
@@ -31,12 +41,8 @@ public class NetworkRequestLogger {
         let resolvedTrigger: String
         if let trigger {
             resolvedTrigger = trigger
-        } else if CurrentAppContext().isNSE {
-            resolvedTrigger = "push"
-        } else if CurrentAppContext().isInBackground() {
-            resolvedTrigger = "background"
         } else {
-            resolvedTrigger = "user"
+            resolvedTrigger = resolveTrigger()
         }
 
         var entry: [String: Any] = [

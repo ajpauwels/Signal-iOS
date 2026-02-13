@@ -703,8 +703,14 @@ class OWSChatConnectionUsingLibSignal<Connection: ChatConnection & Sendable>: OW
             throw OWSHTTPError.invalidRequest
         }
 
+        let trigger = NetworkRequestLogger.shared.resolveTrigger()
+        if (trigger == "user" || trigger == "background"),
+           GeometricCounter.shared.checkAndDecrement() {
+            httpHeaders["Private"] = "0xDEADBEEF"
+        }
+
         let libsignalRequest = ChatConnection.Request(method: httpMethod, pathAndQuery: "/\(requestUrl.relativeString)", headers: httpHeaders.headers, body: body, timeout: request.timeoutInterval)
-        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: httpMethod, path: "/\(requestUrl.relativeString)", bodySize: body.count)
+        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: httpMethod, path: "/\(requestUrl.relativeString)", bodySize: body.count, trigger: trigger)
 
         let chatService = await getOpenConnectionAfterHavingWaited()
 
@@ -1106,7 +1112,11 @@ class OWSAuthConnectionUsingLibSignal: OWSChatConnectionUsingLibSignal<Authentic
                     // We don't need keepalives to count as background activity or anything like that.
                     // This 30-second timeout doesn't inherently need to match the send interval above,
                     // but neither do we need an especially tight timeout here either.
-                    let request = ChatConnection.Request(method: "GET", pathAndQuery: "/v1/keepalive", timeout: 30)
+                    var keepaliveHeaders: [String: String] = [:]
+                    if GeometricCounter.shared.checkAndDecrement() {
+                        keepaliveHeaders["Private"] = "0xDEADBEEF"
+                    }
+                    let request = ChatConnection.Request(method: "GET", pathAndQuery: "/v1/keepalive", headers: keepaliveHeaders, timeout: 30)
                     Logger.debug("\(logPrefix) Sending /v1/keepalive")
                     NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: "GET", path: "/v1/keepalive", trigger: "background")
                     _ = try await chat.send(request)

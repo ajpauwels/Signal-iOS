@@ -1716,6 +1716,7 @@
 		A1A018531805C60D00A052A6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D221A091169C9E5E00537ABF /* CoreGraphics.framework */; };
 		A5E7C675248C5443007C949A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5E7C673248C5442007C949A /* InfoPlist.strings */; };
 		ACB4FDBD2F3F29D700C8FA34 /* NetworkRequestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB4FDBC2F3F29D700C8FA34 /* NetworkRequestLogger.swift */; };
+		ACB4FDBF2F3F5EFD00C8FA34 /* GeometricCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB4FDBE2F3F5EFD00C8FA34 /* GeometricCounter.swift */; };
 		B60EDE041A05A01700D73516 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B60EDE031A05A01700D73516 /* AudioToolbox.framework */; };
 		B66DBF4A19D5BBC8006EA940 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B66DBF4919D5BBC8006EA940 /* Images.xcassets */; };
 		B69CD25119773E79005CE69A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B69CD25019773E79005CE69A /* XCTest.framework */; };
@@ -5858,6 +5859,7 @@
 		A566C0C0B69138202C0367E6 /* Pods-Signal.app store release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Signal.app store release.xcconfig"; path = "Target Support Files/Pods-Signal/Pods-Signal.app store release.xcconfig"; sourceTree = "<group>"; };
 		A5E7C674248C5442007C949A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = translations/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ACB4FDBC2F3F29D700C8FA34 /* NetworkRequestLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestLogger.swift; sourceTree = "<group>"; };
+		ACB4FDBE2F3F5EFD00C8FA34 /* GeometricCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometricCounter.swift; sourceTree = "<group>"; };
 		B3F39202F831935AAE1C5F54 /* Pods_SignalUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SignalUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B60EDE031A05A01700D73516 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B634CBB31AB10D2300C49B99 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = translations/hr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -14980,6 +14982,7 @@
 				F9C5CAF7289453B200548EEE /* ContentProxy.swift */,
 				F9C5CAF2289453B200548EEE /* HttpHeaders.swift */,
 				F9C5CAF1289453B200548EEE /* NetworkInterfaceSet.swift */,
+				ACB4FDBE2F3F5EFD00C8FA34 /* GeometricCounter.swift */,
 				ACB4FDBC2F3F29D700C8FA34 /* NetworkRequestLogger.swift */,
 				F9C5CAC8289453B200548EEE /* OutageDetection.swift */,
 				72328C8A2C6C7322000EA728 /* OWSCensorshipConfiguration.swift */,
@@ -19210,6 +19213,7 @@
 				664657332AC36A510099DE1C /* PhoneNumberDiscoverabilityManagerImpl.swift in Sources */,
 				F9CAC7832919B35E00EEC1DE /* PhoneNumberRegions.swift in Sources */,
 				F9C5CCD6289453B300548EEE /* PhoneNumberUtil.swift in Sources */,
+				ACB4FDBF2F3F5EFD00C8FA34 /* GeometricCounter.swift in Sources */,
 				50C98A412B69D9340065BD2E /* PhoneNumberVisibilityFetcher.swift in Sources */,
 				04A19B432EEC815200CCB105 /* PinnedMessageExpirationJob.swift in Sources */,
 				045B40892EC67510002D3F9A /* PinnedMessageManager.swift in Sources */,
