@@ -452,6 +452,7 @@ public class OWSURLSession: OWSURLSessionProtocol {
 
         do {
             Logger.info("Sending… -> \(rawRequest)")
+            NetworkRequestLogger.shared.log(protocol: "REST", direction: "outgoing", method: rawRequest.method, path: rawRequest.url.absoluteString, bodySize: requestBody.count)
             let response = try await performUpload(request: request, requestData: requestBody, progress: nil)
             Logger.info("HTTP \(response.responseStatusCode) <- \(rawRequest)")
             return response

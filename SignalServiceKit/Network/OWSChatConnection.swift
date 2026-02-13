@@ -704,6 +704,7 @@ class OWSChatConnectionUsingLibSignal<Connection: ChatConnection & Sendable>: OW
         }
 
         let libsignalRequest = ChatConnection.Request(method: httpMethod, pathAndQuery: "/\(requestUrl.relativeString)", headers: httpHeaders.headers, body: body, timeout: request.timeoutInterval)
+        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: httpMethod, path: "/\(requestUrl.relativeString)", bodySize: body.count)
 
         let chatService = await getOpenConnectionAfterHavingWaited()
 
@@ -1107,6 +1108,7 @@ class OWSAuthConnectionUsingLibSignal: OWSChatConnectionUsingLibSignal<Authentic
                     // but neither do we need an especially tight timeout here either.
                     let request = ChatConnection.Request(method: "GET", pathAndQuery: "/v1/keepalive", timeout: 30)
                     Logger.debug("\(logPrefix) Sending /v1/keepalive")
+                    NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: "GET", path: "/v1/keepalive", trigger: "background")
                     _ = try await chat.send(request)
 
                 } catch is CancellationError,
@@ -1169,6 +1171,7 @@ class OWSAuthConnectionUsingLibSignal: OWSChatConnectionUsingLibSignal<Authentic
     }
 
     func chatConnection(_ chat: AuthenticatedChatConnection, didReceiveIncomingMessage envelope: Data, serverDeliveryTimestamp: UInt64, sendAck: @escaping () throws -> Void) {
+        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "incoming", bodySize: envelope.count, trigger: "server")
         let messageProcessor = SSKEnvironment.shared.messageProcessorRef
         messageProcessor.enqueueReceivedEnvelopeData(
             envelope,
