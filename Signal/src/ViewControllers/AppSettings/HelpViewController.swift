@@ -73,6 +73,15 @@ final class HelpViewController: OWSTableViewController2 {
                 DebugLogs.submitLogs(dumper: .fromGlobals())
             },
         ))
+        loggingSection.add(.item(
+            name: "Export Network Log",
+            accessibilityIdentifier: UIView.accessibilityIdentifier(in: self, name: "export_network_log"),
+            actionBlock: {
+                let url = NetworkRequestLogger.shared.logFileUrl
+                guard FileManager.default.fileExists(atPath: url.path) else { return }
+                AttachmentSharing.showShareUI(for: url)
+            },
+        ))
         contents.add(loggingSection)
 
         let aboutSection = OWSTableSection()
