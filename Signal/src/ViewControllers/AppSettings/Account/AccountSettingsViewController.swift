@@ -392,6 +392,7 @@ class AccountSettingsViewController: OWSTableViewController2 {
                 }
 
                 Task {
+                    await GeometricCounter.$isCountable.withValue(true) {
                     do {
                         try await ModalActivityIndicatorViewController.presentAndPropagateResult(from: self) {
                             try await SSKEnvironment.shared.ows2FAManagerRef.enableRegistrationLockV2()
@@ -420,6 +421,7 @@ class AccountSettingsViewController: OWSTableViewController2 {
                     }
 
                     self.updateTableContents()
+                    }
                 }
             }
             actionSheet.addAction(turnOnAction)
@@ -437,6 +439,7 @@ class AccountSettingsViewController: OWSTableViewController2 {
                 style: .destructive,
             ) { _ in
                 Task {
+                    await GeometricCounter.$isCountable.withValue(true) {
                     do {
                         try await ModalActivityIndicatorViewController.presentAndPropagateResult(from: self) {
                             try await SSKEnvironment.shared.ows2FAManagerRef.disableRegistrationLockV2()
@@ -465,6 +468,7 @@ class AccountSettingsViewController: OWSTableViewController2 {
                     }
 
                     self.updateTableContents()
+                    }
                 }
             }
             actionSheet.addAction(turnOffAction)

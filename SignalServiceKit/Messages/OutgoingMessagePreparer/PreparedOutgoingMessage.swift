@@ -276,15 +276,16 @@ public class PreparedOutgoingMessage {
         isHighPriority: Bool,
         tx: DBReadTransaction,
     ) throws -> MessageSenderJobRecord {
+        let isCountable = GeometricCounter.isCountable
         switch messageType {
         case .persisted(let persisted):
-            return try .init(persistedMessage: persisted, isHighPriority: isHighPriority, transaction: tx)
+            return try .init(persistedMessage: persisted, isHighPriority: isHighPriority, isCountable: isCountable, transaction: tx)
         case .editMessage(let edit):
-            return try .init(editMessage: edit, isHighPriority: isHighPriority, transaction: tx)
+            return try .init(editMessage: edit, isHighPriority: isHighPriority, isCountable: isCountable, transaction: tx)
         case .story(let story):
-            return .init(storyMessage: story, isHighPriority: isHighPriority)
+            return .init(storyMessage: story, isHighPriority: isHighPriority, isCountable: isCountable)
         case .transient(let message):
-            return .init(transientMessage: message, isHighPriority: isHighPriority)
+            return .init(transientMessage: message, isHighPriority: isHighPriority, isCountable: isCountable)
         }
     }
 
@@ -360,6 +361,7 @@ public class PreparedOutgoingMessage {
             return message is OutgoingPinMessage || message is OutgoingUnpinMessage
         }
     }
+
 }
 
 extension Array where Element == PreparedOutgoingMessage {

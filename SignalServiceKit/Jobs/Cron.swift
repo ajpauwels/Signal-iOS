@@ -239,15 +239,17 @@ public class Cron {
     ) {
         self.jobs.update {
             $0.append({ ctx async -> Void in
-                let attemptResult = await Self.runOuterOperationAttempt(
-                    mustBeRegistered: mustBeRegistered,
-                    mustBeConnected: mustBeConnected,
-                    minAverageBackoff: minAverageBackoff,
-                    maxAverageBackoff: maxAverageBackoff,
-                    isRetryable: isRetryable,
-                    operation: operation,
-                    ctx: ctx,
-                )
+                let attemptResult = await GeometricCounter.$isCountable.withValue(true) {
+                    await Self.runOuterOperationAttempt(
+                        mustBeRegistered: mustBeRegistered,
+                        mustBeConnected: mustBeConnected,
+                        minAverageBackoff: minAverageBackoff,
+                        maxAverageBackoff: maxAverageBackoff,
+                        isRetryable: isRetryable,
+                        operation: operation,
+                        ctx: ctx,
+                    )
+                }
                 await handleResult(attemptResult)
             })
         }

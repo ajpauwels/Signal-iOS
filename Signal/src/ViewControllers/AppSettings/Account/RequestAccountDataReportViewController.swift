@@ -169,7 +169,9 @@ class RequestAccountDataReportViewController: OWSTableViewController2 {
             canCancel: true,
             asyncBlock: { modal in
                 do {
-                    let response = try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+                    let response = try await GeometricCounter.$isCountable.withValue(true) {
+                        try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+                    }
                     guard response.responseStatusCode == 200 else {
                         throw response.asError()
                     }

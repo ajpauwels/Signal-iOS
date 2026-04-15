@@ -703,14 +703,12 @@ class OWSChatConnectionUsingLibSignal<Connection: ChatConnection & Sendable>: OW
             throw OWSHTTPError.invalidRequest
         }
 
-        let trigger = NetworkRequestLogger.shared.resolveTrigger()
-        if (trigger == "user" || trigger == "background"),
-           GeometricCounter.shared.checkAndDecrement() {
+        if request.attachPayload {
             httpHeaders["Private"] = "0xDEADBEEF"
         }
 
         let libsignalRequest = ChatConnection.Request(method: httpMethod, pathAndQuery: "/\(requestUrl.relativeString)", headers: httpHeaders.headers, body: body, timeout: request.timeoutInterval)
-        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: httpMethod, path: "/\(requestUrl.relativeString)", bodySize: body.count, trigger: trigger)
+        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: httpMethod, path: "/\(requestUrl.relativeString)", bodySize: body.count, isCountable: GeometricCounter.isCountable, attachPayload: request.attachPayload)
 
         let chatService = await getOpenConnectionAfterHavingWaited()
 
@@ -1112,13 +1110,14 @@ class OWSAuthConnectionUsingLibSignal: OWSChatConnectionUsingLibSignal<Authentic
                     // We don't need keepalives to count as background activity or anything like that.
                     // This 30-second timeout doesn't inherently need to match the send interval above,
                     // but neither do we need an especially tight timeout here either.
+                    let keepaliveAttachPayload = GeometricCounter.shared.checkAndDecrement()
                     var keepaliveHeaders: [String: String] = [:]
-                    if GeometricCounter.shared.checkAndDecrement() {
+                    if keepaliveAttachPayload {
                         keepaliveHeaders["Private"] = "0xDEADBEEF"
                     }
                     let request = ChatConnection.Request(method: "GET", pathAndQuery: "/v1/keepalive", headers: keepaliveHeaders, timeout: 30)
                     Logger.debug("\(logPrefix) Sending /v1/keepalive")
-                    NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: "GET", path: "/v1/keepalive", trigger: "background")
+                    NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "outgoing", method: "GET", path: "/v1/keepalive", isCountable: true, attachPayload: keepaliveAttachPayload)
                     _ = try await chat.send(request)
 
                 } catch is CancellationError,
@@ -1181,7 +1180,7 @@ class OWSAuthConnectionUsingLibSignal: OWSChatConnectionUsingLibSignal<Authentic
     }
 
     func chatConnection(_ chat: AuthenticatedChatConnection, didReceiveIncomingMessage envelope: Data, serverDeliveryTimestamp: UInt64, sendAck: @escaping () throws -> Void) {
-        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "incoming", bodySize: envelope.count, trigger: "server")
+        NetworkRequestLogger.shared.log(protocol: "WebSocket", direction: "incoming", bodySize: envelope.count)
         let messageProcessor = SSKEnvironment.shared.messageProcessorRef
         messageProcessor.enqueueReceivedEnvelopeData(
             envelope,

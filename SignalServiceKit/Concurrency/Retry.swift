@@ -8,14 +8,23 @@ public enum Retry {
     // MARK: -
 
     /// Performs `block` repeatedly until `onError` throws an error (or until cancellation).
+    /// On the first attempt, `GeometricCounter.isCountable` retains its inherited value.
+    /// On subsequent attempts, it is set to `false` so that `asyncRequest`
+    /// skips decrementing the geometric counter on retries.
     public static func performRepeatedly<T, E>(block: () async throws(E) -> T, onError: (E, _ attemptCount: Int) async throws -> Void) async throws -> T {
         var attemptCount = 0
         while true {
             try Task.checkCancellation()
             do {
                 attemptCount += 1
-                return try await block()
-            } catch {
+                if attemptCount == 1 {
+                    return try await block()
+                } else {
+                    return try await GeometricCounter.$isCountable.withValue(false) {
+                        try await block()
+                    }
+                }
+            } catch let error as E {
                 try await onError(error, attemptCount)
             }
         }

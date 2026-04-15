@@ -196,37 +196,39 @@ class CallQualitySurveyManager {
         var proto = buildProto(rating: rating)
 
         Task {
-            if shouldSubmitDebugLogs {
+            await GeometricCounter.$isCountable.withValue(true) {
+                if shouldSubmitDebugLogs {
+                    do {
+                        let debugLogURL = try await DebugLogs.uploadLogs(dumper: .fromGlobals())
+                        proto.debugLogURL = debugLogURL.absoluteString
+                    } catch {
+                        logger.error("Failed to submit debug logs: \(error)")
+                    }
+                }
+
                 do {
-                    let debugLogURL = try await DebugLogs.uploadLogs(dumper: .fromGlobals())
-                    proto.debugLogURL = debugLogURL.absoluteString
-                } catch {
-                    logger.error("Failed to submit debug logs: \(error)")
-                }
-            }
-
-            do {
-                let data = try proto.serializedData()
-                let request = createRequest(data: data)
-                let response = try await deps.networkManager.asyncRequest(
-                    request,
-                    retryPolicy: .hopefullyRecoverable,
-                )
-                if response.responseStatusCode != 204 {
-                    throw response.asError()
-                }
-                logger.info("Call quality survey submitted")
-            } catch {
-                logger.error("Failed to submit call quality survey: \(error)")
-            }
-
-            if callSummary.isFailure {
-                deps.db.write { tx in
-                    kvStore.writeValue(
-                        Date(),
-                        forKey: StoreKeys.lastFailureSubmittedDate,
-                        tx: tx,
+                    let data = try proto.serializedData()
+                    let request = createRequest(data: data)
+                    let response = try await deps.networkManager.asyncRequest(
+                        request,
+                        retryPolicy: .hopefullyRecoverable,
                     )
+                    if response.responseStatusCode != 204 {
+                        throw response.asError()
+                    }
+                    logger.info("Call quality survey submitted")
+                } catch {
+                    logger.error("Failed to submit call quality survey: \(error)")
+                }
+
+                if callSummary.isFailure {
+                    deps.db.write { tx in
+                        kvStore.writeValue(
+                            Date(),
+                            forKey: StoreKeys.lastFailureSubmittedDate,
+                            tx: tx,
+                        )
+                    }
                 }
             }
         }

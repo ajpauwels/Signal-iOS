@@ -18,6 +18,7 @@ extension DonationPaymentDetailsViewController {
         Logger.info("[Gifting] Starting gift donation with credit/debit card")
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 try await DonationViewsUtil.wrapInProgressView(
                     from: self,
@@ -49,6 +50,7 @@ extension DonationPaymentDetailsViewController {
                 owsPrecondition(error is DonationViewsUtil.Gifts.SendGiftError)
                 Logger.warn("[Gifting] Gifting card donation failed")
                 self.onFinished(error)
+            }
             }
         }
     }

@@ -11,6 +11,7 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
 
     public let threadId: String?
     public let isHighPriority: Bool
+    public let isCountable: Bool
 
     /// Unique id of the ougoing message persisted in the Interactions table;
     /// mutually exclusive with `transientMessage`.
@@ -59,12 +60,14 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
         messageType: MessageType?,
         removeMessageAfterSending: Bool,
         isHighPriority: Bool,
+        isCountable: Bool = false,
         failureCount: UInt = 0,
         status: Status = .ready,
     ) {
         self.threadId = threadId
         self.removeMessageAfterSending = removeMessageAfterSending
         self.isHighPriority = isHighPriority
+        self.isCountable = isCountable
 
         switch messageType {
         case .persisted(let messageId, let useMediaQueue):
@@ -94,6 +97,7 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
     convenience init(
         persistedMessage: PreparedOutgoingMessage.MessageType.Persisted,
         isHighPriority: Bool,
+        isCountable: Bool = false,
         transaction: DBReadTransaction,
     ) throws {
         let messageType = MessageType.persisted(
@@ -106,12 +110,14 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
             messageType: messageType,
             removeMessageAfterSending: false,
             isHighPriority: isHighPriority,
+            isCountable: isCountable,
         )
     }
 
     convenience init(
         editMessage: PreparedOutgoingMessage.MessageType.EditMessage,
         isHighPriority: Bool,
+        isCountable: Bool = false,
         transaction: DBReadTransaction,
     ) throws {
         let messageType = MessageType.editMessage(
@@ -126,12 +132,14 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
             messageType: messageType,
             removeMessageAfterSending: false,
             isHighPriority: isHighPriority,
+            isCountable: isCountable,
         )
     }
 
     convenience init(
         storyMessage: PreparedOutgoingMessage.MessageType.Story,
         isHighPriority: Bool,
+        isCountable: Bool = false,
     ) {
         let messageType = MessageType.transient(storyMessage.message)
 
@@ -140,12 +148,14 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
             messageType: messageType,
             removeMessageAfterSending: false,
             isHighPriority: isHighPriority,
+            isCountable: isCountable,
         )
     }
 
     convenience init(
         transientMessage: TransientOutgoingMessage,
         isHighPriority: Bool,
+        isCountable: Bool = false,
     ) {
         owsPrecondition(
             !transientMessage.shouldBeSaved
@@ -159,12 +169,14 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
             messageType: messageType,
             removeMessageAfterSending: false,
             isHighPriority: isHighPriority,
+            isCountable: isCountable,
         )
     }
 
     public enum CodingKeys: String, CodingKey {
         case threadId = "threadId"
         case isHighPriority = "isHighPriority"
+        case isCountable
         case removeMessageAfterSending = "removeMessageAfterSending"
 
         case persistedMessageId = "messageId"
@@ -193,6 +205,7 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
 
         removeMessageAfterSending = try container.decode(Bool.self, forKey: .removeMessageAfterSending)
         isHighPriority = try container.decode(Bool.self, forKey: .isHighPriority)
+        isCountable = try container.decodeIfPresent(Bool.self, forKey: .isCountable) ?? false
 
         try super.init(baseClassDuringFactoryInitializationFrom: container.superDecoder())
     }
@@ -211,5 +224,6 @@ public final class MessageSenderJobRecord: JobRecord, FactoryInitializableFromRe
         )
         try container.encode(removeMessageAfterSending, forKey: .removeMessageAfterSending)
         try container.encode(isHighPriority, forKey: .isHighPriority)
+        try container.encode(isCountable, forKey: .isCountable)
     }
 }

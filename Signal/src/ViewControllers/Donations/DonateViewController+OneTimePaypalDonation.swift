@@ -21,6 +21,7 @@ extension DonateViewController {
     }
 
     private func _startPaypalBoost(amount: FiatMoney, badge: ProfileBadge) async {
+        await GeometricCounter.$isCountable.withValue(true) {
         do {
             Logger.info("[Donations] Creating one-time PayPal payment")
             let (approvalUrl, paymentId) = try await DonationViewsUtil.Paypal.createPaypalPaymentBehindActivityIndicator(
@@ -67,6 +68,7 @@ extension DonateViewController {
                     paymentMethod: .paypal,
                 )
             }
+        }
         }
     }
 

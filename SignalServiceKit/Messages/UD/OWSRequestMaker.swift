@@ -110,9 +110,17 @@ final class RequestMaker {
         }
 
         var mostRecentError: (any Error)?
+        var isFirstAuthAttempt = true
         for authMechanism in authMechanisms {
             do {
-                return try await block(authMechanism())
+                if isFirstAuthAttempt {
+                    isFirstAuthAttempt = false
+                    return try await block(authMechanism())
+                } else {
+                    return try await GeometricCounter.$isCountable.withValue(false) {
+                        try await block(authMechanism())
+                    }
+                }
             } catch {
                 mostRecentError = error
                 switch error {

@@ -566,12 +566,14 @@ extension MessageSender {
                     guard let body = responseData, let expiry = error.httpRetryAfterDate else {
                         throw OWSAssertionError("Invalid spam response body")
                     }
-                    try await withCheckedThrowingContinuation { continuation in
-                        SSKEnvironment.shared.spamChallengeResolverRef.handleServerChallengeBody(body, retryAfter: expiry) { didSucceed in
-                            if didSucceed {
-                                continuation.resume()
-                            } else {
-                                continuation.resume(throwing: SpamChallengeRequiredError())
+                    try await GeometricCounter.$isCountable.withValue(false) {
+                        try await withCheckedThrowingContinuation { continuation in
+                            SSKEnvironment.shared.spamChallengeResolverRef.handleServerChallengeBody(body, retryAfter: expiry) { didSucceed in
+                                if didSucceed {
+                                    continuation.resume()
+                                } else {
+                                    continuation.resume(throwing: SpamChallengeRequiredError())
+                                }
                             }
                         }
                     }

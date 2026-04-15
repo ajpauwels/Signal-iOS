@@ -12,6 +12,7 @@ public struct TSRequest: CustomDebugStringConvertible {
     public var headers: HttpHeaders
     public var body: Body
     public var timeoutInterval: TimeInterval = OWSRequestFactory.textSecureHTTPTimeOut
+    public var attachPayload: Bool = false
     public let logger: PrefixedLogger
 
     public enum Body {

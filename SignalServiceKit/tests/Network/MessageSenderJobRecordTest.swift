@@ -48,4 +48,25 @@ class SSKMessageSenderJobRecordTest: SSKBaseTest {
             XCTAssertNotNil(jobRecord.threadId)
         }
     }
+
+    func test_isCountableDefaultsFalse() {
+        let jobRecord = MessageSenderJobRecord(
+            threadId: "test",
+            messageType: nil,
+            removeMessageAfterSending: false,
+            isHighPriority: false,
+        )
+        XCTAssertFalse(jobRecord.isCountable)
+    }
+
+    func test_isCountableTrue() {
+        let jobRecord = MessageSenderJobRecord(
+            threadId: "test",
+            messageType: nil,
+            removeMessageAfterSending: false,
+            isHighPriority: false,
+            isCountable: true,
+        )
+        XCTAssertTrue(jobRecord.isCountable)
+    }
 }

@@ -1339,7 +1339,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         if registeredState != nil {
             Task {
                 // Always check prekeys after app launches, and sometimes check on app activation.
-                try? await DependenciesBridge.shared.preKeyManager.checkPreKeysIfNecessary()
+                try? await GeometricCounter.$isCountable.withValue(true) {
+                    try await DependenciesBridge.shared.preKeyManager.checkPreKeysIfNecessary()
+                }
             }
         }
 

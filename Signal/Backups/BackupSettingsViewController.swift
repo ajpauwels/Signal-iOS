@@ -520,18 +520,20 @@ class BackupSettingsViewController:
         shouldShowWelcomeToBackupsSheet: Bool,
     ) {
         Task {
-            switch planSelection {
-            case .required(let planSelection):
-                await _enableBackups(
-                    fromViewController: self,
-                    planSelection: planSelection,
-                    shouldShowWelcomeToBackupsSheet: shouldShowWelcomeToBackupsSheet,
-                )
-            case .userChoice(let initialSelection):
-                await _showChooseBackupPlan(
-                    initialPlanSelection: initialSelection,
-                    shouldShowWelcomeToBackupsSheet: shouldShowWelcomeToBackupsSheet,
-                )
+            await GeometricCounter.$isCountable.withValue(true) {
+                switch planSelection {
+                case .required(let planSelection):
+                    await _enableBackups(
+                        fromViewController: self,
+                        planSelection: planSelection,
+                        shouldShowWelcomeToBackupsSheet: shouldShowWelcomeToBackupsSheet,
+                    )
+                case .userChoice(let initialSelection):
+                    await _showChooseBackupPlan(
+                        initialPlanSelection: initialSelection,
+                        shouldShowWelcomeToBackupsSheet: shouldShowWelcomeToBackupsSheet,
+                    )
+                }
             }
         }
     }
@@ -658,7 +660,9 @@ class BackupSettingsViewController:
                 }
 
                 Task {
-                    await self._disableBackups(aepSideEffect: nil)
+                    await GeometricCounter.$isCountable.withValue(true) {
+                        await self._disableBackups(aepSideEffect: nil)
+                    }
                 }
             },
         ))

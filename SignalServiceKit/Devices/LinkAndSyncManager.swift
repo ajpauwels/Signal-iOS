@@ -377,11 +377,22 @@ public class LinkAndSyncManagerImpl: LinkAndSyncManager {
     ) async throws(PrimaryLinkNSyncError) -> Requests.WaitForDeviceToLinkResponse {
         Logger.info("Waiting for device to link")
         var numNetworkErrors = 0
+        var isFirstIteration = true
         whileLoop: while true {
             do {
-                let response = try await networkManager.asyncRequest(
-                    Requests.waitForDeviceToLink(tokenId: tokenId),
-                )
+                let response: HTTPResponse
+                if isFirstIteration {
+                    isFirstIteration = false
+                    response = try await networkManager.asyncRequest(
+                        Requests.waitForDeviceToLink(tokenId: tokenId),
+                    )
+                } else {
+                    response = try await GeometricCounter.$isCountable.withValue(false) {
+                        try await networkManager.asyncRequest(
+                            Requests.waitForDeviceToLink(tokenId: tokenId),
+                        )
+                    }
+                }
                 switch Requests.WaitForDeviceToLinkResponseCodes(rawValue: response.responseStatusCode) {
                 case .success:
                     Logger.info("Device linked!")
@@ -595,10 +606,19 @@ public class LinkAndSyncManagerImpl: LinkAndSyncManager {
             preferredBackoffBlock: { $0.httpResponseHeaders?.retryAfterTimeInterval },
             isRetryable: { $0.isNetworkFailureOrTimeout || $0.httpStatusCode == 429 },
         ) { () async throws -> Requests.ExportAndUploadBackupResult in
+            var isFirstIteration = true
             while true {
                 let startDate = MonotonicDate()
                 try checkCancelledOrAppBackgrounded()
-                let response = try await networkManager.asyncRequest(Requests.waitForLinkNSyncBackupUpload(auth: auth))
+                let response: HTTPResponse
+                if isFirstIteration {
+                    isFirstIteration = false
+                    response = try await networkManager.asyncRequest(Requests.waitForLinkNSyncBackupUpload(auth: auth))
+                } else {
+                    response = try await GeometricCounter.$isCountable.withValue(false) {
+                        try await networkManager.asyncRequest(Requests.waitForLinkNSyncBackupUpload(auth: auth))
+                    }
+                }
                 switch Requests.WaitForLinkNSyncBackupUploadResponseCodes(rawValue: response.responseStatusCode) {
                 case .success:
                     let rawResponse = try JSONDecoder().decode(

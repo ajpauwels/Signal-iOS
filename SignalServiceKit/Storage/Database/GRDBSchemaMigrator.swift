@@ -318,6 +318,7 @@ public class GRDBSchemaMigrator {
         case addSession
         case addRecipientStatus
         case createKeyTransparencyTable
+        case addIsCountableToMessageSenderJobRecord
 
         // NOTE: Every time we add a migration id, consider
         // incrementing grdbSchemaVersionLatest.
@@ -4995,6 +4996,13 @@ public class GRDBSchemaMigrator {
 
         migrator.registerMigration(.createKeyTransparencyTable) { tx in
             try createKeyTransparencyTable(tx: tx)
+            return .success(())
+        }
+
+        migrator.registerMigration(.addIsCountableToMessageSenderJobRecord) { tx in
+            try tx.database.alter(table: "model_SSKJobRecord") { table in
+                table.add(column: "isCountable", .boolean).notNull().defaults(to: false)
+            }
             return .success(())
         }
 

@@ -431,9 +431,7 @@ public class OWSURLSession: OWSURLSessionProtocol {
             requestBody = Data()
         }
 
-        let trigger = NetworkRequestLogger.shared.resolveTrigger()
-        if (trigger == "user" || trigger == "background"),
-           GeometricCounter.shared.checkAndDecrement() {
+        if rawRequest.attachPayload {
             httpHeaders.addHeader("Private", value: "0xDEADBEEF", overwriteOnConflict: true)
         }
 
@@ -458,7 +456,7 @@ public class OWSURLSession: OWSURLSessionProtocol {
 
         do {
             Logger.info("Sending… -> \(rawRequest)")
-            NetworkRequestLogger.shared.log(protocol: "REST", direction: "outgoing", method: rawRequest.method, path: rawRequest.url.absoluteString, bodySize: requestBody.count, trigger: trigger)
+            NetworkRequestLogger.shared.log(protocol: "REST", direction: "outgoing", method: rawRequest.method, path: rawRequest.url.absoluteString, bodySize: requestBody.count, isCountable: GeometricCounter.isCountable, attachPayload: rawRequest.attachPayload)
             let response = try await performUpload(request: request, requestData: requestBody, progress: nil)
             Logger.info("HTTP \(response.responseStatusCode) <- \(rawRequest)")
             return response

@@ -229,10 +229,12 @@ public class AppEnvironment: NSObject {
 
                 Task {
                     do {
-                        try await backupIdService.registerBackupIDIfNecessary(
-                            localAci: localIdentifiers.aci,
-                            auth: .implicit(),
-                        )
+                        try await GeometricCounter.$isCountable.withValue(true) {
+                            try await backupIdService.registerBackupIDIfNecessary(
+                                localAci: localIdentifiers.aci,
+                                auth: .implicit(),
+                            )
+                        }
                     } catch {
                         // Do nothing, we'll try again on the next app launch.
                         owsFailDebug("Error registering backup ID \(error)")
@@ -277,7 +279,9 @@ public class AppEnvironment: NSObject {
 
             Task {
                 do {
-                    try await backupSubscriptionManager.redeemSubscriptionIfNecessary()
+                    try await GeometricCounter.$isCountable.withValue(true) {
+                        try await backupSubscriptionManager.redeemSubscriptionIfNecessary()
+                    }
                 } catch {
                     owsFailDebug("Failed to redeem Backup subscription in launch job: \(error)")
                 }
@@ -285,7 +289,9 @@ public class AppEnvironment: NSObject {
 
             Task {
                 do {
-                    try await backupTestFlightEntitlementManager.renewEntitlementIfNecessary()
+                    try await GeometricCounter.$isCountable.withValue(true) {
+                        try await backupTestFlightEntitlementManager.renewEntitlementIfNecessary()
+                    }
                 } catch {
                     owsFailDebug("Failed to renew Backup entitlement for TestFlight in launch job: \(error)")
                 }
@@ -294,7 +300,9 @@ public class AppEnvironment: NSObject {
             Task {
                 await DonationSubscriptionManager.performMigrationToStorageServiceIfNecessary()
                 do {
-                    try await DonationSubscriptionManager.redeemSubscriptionIfNecessary()
+                    try await GeometricCounter.$isCountable.withValue(true) {
+                        try await DonationSubscriptionManager.redeemSubscriptionIfNecessary()
+                    }
                 } catch {
                     owsFailDebug("Failed to redeem subscription in launch job: \(error)")
                 }

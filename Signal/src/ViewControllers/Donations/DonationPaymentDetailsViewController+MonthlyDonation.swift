@@ -22,6 +22,7 @@ extension DonationPaymentDetailsViewController {
         Logger.info("[Donations] Starting monthly donation")
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 try await DonationViewsUtil.wrapInProgressView(
                     from: self,
@@ -94,6 +95,7 @@ extension DonationPaymentDetailsViewController {
             } catch {
                 Logger.info("[Donations] Monthly donation UX dismissing with error. \(error)")
                 self.onFinished(error)
+            }
             }
         }
     }

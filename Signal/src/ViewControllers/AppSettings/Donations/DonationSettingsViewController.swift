@@ -140,7 +140,9 @@ class DonationSettingsViewController: OWSTableViewController2 {
             return
         case .initializing, .loadFinished:
             self.state = .loading
-            self.state = await self.loadState()
+            self.state = await GeometricCounter.$isCountable.withValue(true) {
+                await self.loadState()
+            }
         }
     }
 

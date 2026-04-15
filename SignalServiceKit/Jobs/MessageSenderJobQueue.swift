@@ -494,6 +494,12 @@ public class MessageSenderJobQueue {
     /// This methods returns after the operation has reached a terminal result
     /// but before that result has been processed.
     private func _runOperation(_ operation: ActiveOperationState) async throws {
+        try await GeometricCounter.$isCountable.withValue(operation.job.record.isCountable) {
+            try await _runOperationInner(operation)
+        }
+    }
+
+    private func _runOperationInner(_ operation: ActiveOperationState) async throws {
         var attemptCount = Int(operation.job.record.failureCount)
         let maxRetries = getMaxRetriesForMessageType(message: operation.message)
         while true {

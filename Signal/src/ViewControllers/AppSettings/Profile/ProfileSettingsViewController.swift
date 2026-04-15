@@ -695,6 +695,7 @@ class ProfileSettingsViewController: OWSTableViewController2 {
 
         // Show an activity indicator to block the UI during the profile upload.
         ModalActivityIndicatorViewController.present(fromViewController: self, canCancel: false, asyncBlock: { modalActivityIndicator in
+            await GeometricCounter.$isCountable.withValue(true) {
             let databaseStorage = SSKEnvironment.shared.databaseStorageRef
             do {
                 let updatePromise = await databaseStorage.awaitableWrite { tx in
@@ -731,6 +732,7 @@ class ProfileSettingsViewController: OWSTableViewController2 {
             }
             modalActivityIndicator.dismiss { [weak self] in
                 self?.profileCompleted()
+            }
             }
         })
     }

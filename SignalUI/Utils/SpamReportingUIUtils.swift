@@ -191,19 +191,21 @@ public enum ReportSpamUIUtils {
         )
 
         Task {
-            do {
-                try await withThrowingTaskGroup(of: Void.self) { group in
-                    for guid in guidsToReport {
-                        let request = OWSRequestFactory.reportSpam(from: aci, withServerGuid: guid, reportingToken: reportingToken)
-                        group.addTask {
-                            _ = try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+            await GeometricCounter.$isCountable.withValue(true) {
+                do {
+                    try await withThrowingTaskGroup(of: Void.self) { group in
+                        for guid in guidsToReport {
+                            let request = OWSRequestFactory.reportSpam(from: aci, withServerGuid: guid, reportingToken: reportingToken)
+                            group.addTask {
+                                _ = try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+                            }
                         }
+                        try await group.waitForAll()
                     }
-                    try await group.waitForAll()
+                    Logger.info("Successfully reported \(guidsToReport.count) message(s) from \(aci) as spam.")
+                } catch {
+                    owsFailDebug("Failed to report message(s) from \(aci) as spam with error: \(error)")
                 }
-                Logger.info("Successfully reported \(guidsToReport.count) message(s) from \(aci) as spam.")
-            } catch {
-                owsFailDebug("Failed to report message(s) from \(aci) as spam with error: \(error)")
             }
         }
     }

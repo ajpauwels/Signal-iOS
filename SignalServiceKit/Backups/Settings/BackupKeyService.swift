@@ -132,11 +132,13 @@ final class BackupKeyServiceImpl: BackupKeyService {
                 BackupSettingsStore().setHaveSetBackupID(haveSetBackupID: false, tx: tx)
             }
 
-            return try await _registerBackupKey(
-                localIdentifiers: localIdentifiers,
-                auth: auth,
-                retryOnFail: false,
-            )
+            return try await GeometricCounter.$isCountable.withValue(false) {
+                try await _registerBackupKey(
+                    localIdentifiers: localIdentifiers,
+                    auth: auth,
+                    retryOnFail: false,
+                )
+            }
         }
     }
 

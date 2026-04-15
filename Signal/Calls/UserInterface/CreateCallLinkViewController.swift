@@ -76,7 +76,9 @@ class CreateCallLinkViewController: InteractiveSheetViewController {
                 do {
                     let callLink = CallLink.generate()
                     let callService = AppEnvironment.shared.callService!
-                    let createResult = try await callService.callLinkManager.createCallLink(rootKey: callLink.rootKey)
+                    let createResult = try await GeometricCounter.$isCountable.withValue(true) {
+                        try await callService.callLinkManager.createCallLink(rootKey: callLink.rootKey)
+                    }
                     modal.dismissIfNotCanceled {
                         viewController.present(CreateCallLinkViewController(
                             callLink: callLink,

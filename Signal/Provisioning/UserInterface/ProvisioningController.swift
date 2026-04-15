@@ -317,11 +317,13 @@ class ProvisioningController: NSObject {
 
         performCoordinatorTaskWithModal(
             task: Task {
-                try await self.provisioningCoordinator.completeProvisioning(
-                    provisionMessage: provisioningMessage,
-                    deviceName: UIDevice.current.name,
-                    progressViewModel: progressViewModel,
-                )
+                try await GeometricCounter.$isCountable.withValue(true) {
+                    try await self.provisioningCoordinator.completeProvisioning(
+                        provisionMessage: provisioningMessage,
+                        deviceName: UIDevice.current.name,
+                        progressViewModel: progressViewModel,
+                    )
+                }
             },
             viewController: viewController,
             navigationController: navigationController,

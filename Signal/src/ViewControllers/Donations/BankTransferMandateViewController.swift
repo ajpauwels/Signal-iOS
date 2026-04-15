@@ -48,7 +48,9 @@ class BankTransferMandateViewController: OWSTableViewController2 {
         updateBottomFooter()
 
         Task {
-            await loadMandate()
+            await GeometricCounter.$isCountable.withValue(true) {
+                await loadMandate()
+            }
         }
     }
 

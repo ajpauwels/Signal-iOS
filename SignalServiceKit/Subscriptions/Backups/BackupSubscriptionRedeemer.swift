@@ -131,12 +131,16 @@ class BackupSubscriptionRedeemer {
 
         case .needsReattempt:
             // Try again, without a delay.
-            try await redeem(context: context)
+            try await GeometricCounter.$isCountable.withValue(false) {
+                try await redeem(context: context)
+            }
 
         case .paymentStillProcessing:
             // Try again, with a delay.
             await waitForIncrementedExponentialRetry()
-            try await redeem(context: context)
+            try await GeometricCounter.$isCountable.withValue(false) {
+                try await redeem(context: context)
+            }
 
         case .networkError:
             // Try again, with an interruptable delay.
@@ -149,7 +153,9 @@ class BackupSubscriptionRedeemer {
                 return task
             }
             await waitingTask.value
-            try await redeem(context: context)
+            try await GeometricCounter.$isCountable.withValue(false) {
+                try await redeem(context: context)
+            }
 
         case .redemptionUnsuccessful:
             Logger.warn("Failed to redeem subscription.")

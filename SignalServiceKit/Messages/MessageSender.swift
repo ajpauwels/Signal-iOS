@@ -853,12 +853,14 @@ public class MessageSender {
             return SendMessageResult(isNoteToSelf: false, sendMessageFailure: sendMessageFailure)
         }
 
-        return try await sendPreparedMessage(
-            message,
-            recoveryState: retryRecoveryState,
-            senderCertificates: senderCertificates,
-            localIdentifiers: localIdentifiers,
-        )
+        return try await GeometricCounter.$isCountable.withValue(false) {
+            try await sendPreparedMessage(
+                message,
+                recoveryState: retryRecoveryState,
+                senderCertificates: senderCertificates,
+                localIdentifiers: localIdentifiers,
+            )
+        }
     }
 
     private func checkIfCanSendMessage(_ message: any SendableMessage, toThread thread: TSThread) throws {
@@ -1342,11 +1344,13 @@ public class MessageSender {
         } catch RequestMakerUDAuthError.udAuthFailure {
             owsPrecondition(sealedSenderParameters != nil)
             // This failure can happen on pre key fetches or message sends.
-            return try await performMessageSendAttempt(
-                messageSend,
-                recoveryState: recoveryState,
-                sealedSenderParameters: nil, // Retry as an unsealed send.
-            )
+            return try await GeometricCounter.$isCountable.withValue(false) {
+                try await performMessageSendAttempt(
+                    messageSend,
+                    recoveryState: recoveryState,
+                    sealedSenderParameters: nil, // Retry as an unsealed send.
+                )
+            }
         } catch DeviceMessagesError.mismatchedDevices where recoveryState.canHandleMismatchedDevices {
             retryRecoveryState = recoveryState.mutated({ $0.canHandleMismatchedDevices = false })
         } catch DeviceMessagesError.staleDevices where recoveryState.canHandleStaleDevices {
@@ -1354,11 +1358,13 @@ public class MessageSender {
         } catch where error.httpStatusCode == 428 && recoveryState.canHandleCaptcha {
             retryRecoveryState = recoveryState.mutated({ $0.canHandleCaptcha = false })
         }
-        return try await performMessageSendAttempt(
-            messageSend,
-            recoveryState: retryRecoveryState,
-            sealedSenderParameters: sealedSenderParameters,
-        )
+        return try await GeometricCounter.$isCountable.withValue(false) {
+            try await performMessageSendAttempt(
+                messageSend,
+                recoveryState: retryRecoveryState,
+                sealedSenderParameters: sealedSenderParameters,
+            )
+        }
     }
 
     private let nonExistentAccountCache = AtomicValue([ServiceId: MonotonicDate](), lock: .init())
@@ -1640,7 +1646,7 @@ public class MessageSender {
 
         do {
             let result = try await requestMaker.makeRequest {
-                return OWSRequestFactory.submitMessageRequest(
+                OWSRequestFactory.submitMessageRequest(
                     serviceId: messageSend.serviceId,
                     messages: deviceMessages,
                     timestamp: message.timestamp,
@@ -1758,10 +1764,12 @@ public class MessageSender {
         case 428:
             // SPAM TODO: Only retry messages with -hasRenderableContent
             Logger.warn("Server requested user complete spam challenge.")
-            try await SSKEnvironment.shared.spamChallengeResolverRef.tryToHandleSilently(
-                bodyData: responseError.httpResponseData,
-                retryAfter: responseError.httpRetryAfterDate,
-            )
+            try await GeometricCounter.$isCountable.withValue(false) {
+                try await SSKEnvironment.shared.spamChallengeResolverRef.tryToHandleSilently(
+                    bodyData: responseError.httpResponseData,
+                    retryAfter: responseError.httpRetryAfterDate,
+                )
+            }
             // The resolver has 10s to asynchronously resolve a challenge If it
             // resolves, great! We'll let MessageSender auto-retry. Otherwise, it'll be
             // marked as "pending"

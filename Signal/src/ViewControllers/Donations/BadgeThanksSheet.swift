@@ -437,9 +437,11 @@ class BadgeThanksSheet: OWSTableSheetViewController {
                     let shouldMakeVisibleAndPrimary = self.shouldMakeVisibleAndPrimary
                     Task {
                         do {
-                            try await self.performConfirmationAction {
-                                try await Self.redeemGiftBadge(incomingMessage: incomingMessage)
-                                try await self.saveVisibilityChanges(shouldMakeVisibleAndPrimary: shouldMakeVisibleAndPrimary)
+                            try await GeometricCounter.$isCountable.withValue(true) {
+                                try await self.performConfirmationAction {
+                                    try await Self.redeemGiftBadge(incomingMessage: incomingMessage)
+                                    try await self.saveVisibilityChanges(shouldMakeVisibleAndPrimary: shouldMakeVisibleAndPrimary)
+                                }
                             }
                         } catch {
                             OWSActionSheets.showActionSheet(

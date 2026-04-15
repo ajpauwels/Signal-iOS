@@ -21,22 +21,24 @@ class SyncPushTokensJob: NSObject {
     private static let hasUploadedTokensOnce = AtomicBool(false, lock: .sharedGlobal)
 
     func run() async throws {
-        switch mode {
-        case .normal:
-            // Don't rotate.
-            return try await run(shouldRotateAPNSToken: false)
-        case .forceRotation:
-            // Always rotate
-            return try await run(shouldRotateAPNSToken: true)
-        case .rotateIfEligible:
-            let shouldRotate = SSKEnvironment.shared.databaseStorageRef.read { tx -> Bool in
-                return APNSRotationStore.canRotateAPNSToken(transaction: tx)
+        try await GeometricCounter.$isCountable.withValue(true) {
+            switch mode {
+            case .normal:
+                // Don't rotate.
+                return try await run(shouldRotateAPNSToken: false)
+            case .forceRotation:
+                // Always rotate
+                return try await run(shouldRotateAPNSToken: true)
+            case .rotateIfEligible:
+                let shouldRotate = SSKEnvironment.shared.databaseStorageRef.read { tx -> Bool in
+                    return APNSRotationStore.canRotateAPNSToken(transaction: tx)
+                }
+                guard shouldRotate else {
+                    // If we aren't rotating, no-op.
+                    return
+                }
+                return try await run(shouldRotateAPNSToken: true)
             }
-            guard shouldRotate else {
-                // If we aren't rotating, no-op.
-                return
-            }
-            return try await run(shouldRotateAPNSToken: true)
         }
     }
 

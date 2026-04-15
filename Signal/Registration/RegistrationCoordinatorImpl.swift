@@ -76,13 +76,15 @@ public class RegistrationCoordinatorImpl: RegistrationCoordinator {
 
     @MainActor
     public func nextStep() async -> RegistrationStep {
-        if deps.appExpiry.isExpired(now: deps.dateProvider()) {
-            return .appUpdateBanner
-        }
+        return await GeometricCounter.$isCountable.withValue(true) {
+            if deps.appExpiry.isExpired(now: deps.dateProvider()) {
+                return .appUpdateBanner
+            }
 
-        // Always start by restoring state.
-        await restoreStateIfNeeded()
-        return await nextStep(pathway: getPathway())
+            // Always start by restoring state.
+            await restoreStateIfNeeded()
+            return await nextStep(pathway: getPathway())
+        }
     }
 
     public func continueFromSplash() -> Guarantee<RegistrationStep> {

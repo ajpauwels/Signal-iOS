@@ -421,8 +421,10 @@ final class IndividualCallService: CallServiceStateObserver {
         // Start the call, asynchronously.
         Task { @MainActor in
             do {
-                var iceServers = try await RTCIceServerFetcher(networkManager: networkManager)
-                    .getIceServers()
+                var iceServers = try await GeometricCounter.$isCountable.withValue(isOutgoing) {
+                    try await RTCIceServerFetcher(networkManager: networkManager)
+                        .getIceServers()
+                }
                 guard self.callServiceState.currentCall === call else {
                     Logger.debug("call has since ended")
                     return

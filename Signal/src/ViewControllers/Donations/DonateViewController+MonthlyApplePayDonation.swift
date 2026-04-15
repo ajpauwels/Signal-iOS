@@ -29,6 +29,7 @@ extension DonateViewController {
         // See also: code for other payment methods, such as credit/debit card.
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             let subscriberId: Data
             do {
                 if let existingSubscriberId = monthly.subscriberID {
@@ -100,6 +101,7 @@ extension DonateViewController {
                     paymentMethod: .applePay,
                 )
             }
+            } // withValue
         }
     }
 }

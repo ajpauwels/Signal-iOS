@@ -328,7 +328,9 @@ private struct AppAttestManager {
             // key, throw that key away and try again.
             logger.warn("Failed to generate assertion with previously-attested key. Wiping key and starting over.")
             await wipeAttestedKeyId()
-            try await performAttestationAction(action)
+            try await GeometricCounter.$isCountable.withValue(false) {
+                try await performAttestationAction(action)
+            }
         }
     }
 

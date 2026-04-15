@@ -305,7 +305,9 @@ final class BackupSubscriptionManagerImpl: BackupSubscriptionManager {
                         await db.awaitableWrite { tx in
                             self.setRedemptionAttemptIsNecessary(tx: tx)
                         }
-                        try await redeemSubscriptionIfNecessary()
+                        try await GeometricCounter.$isCountable.withValue(true) {
+                            try await self.redeemSubscriptionIfNecessary()
+                        }
                     } catch {
                         owsFailDebug(
                             "Failed to redeem subscription: \(error)",

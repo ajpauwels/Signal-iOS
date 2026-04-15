@@ -126,7 +126,9 @@ public class MobileCoinAPI {
             throw OWSAssertionError("Payments disabled in NSE.")
         }
         let request = OWSRequestFactory.paymentsAuthenticationCredentialRequest()
-        let response = try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+        let response = try await GeometricCounter.$isCountable.withValue(true) {
+            try await SSKEnvironment.shared.networkManagerRef.asyncRequest(request)
+        }
         guard let params = response.responseBodyParamParser else {
             throw OWSAssertionError("Missing or invalid JSON")
         }

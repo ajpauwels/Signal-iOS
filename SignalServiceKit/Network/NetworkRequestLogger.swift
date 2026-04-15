@@ -20,36 +20,21 @@ public class NetworkRequestLogger {
 
     public var logFileUrl: URL { logFileURL }
 
-    public func resolveTrigger() -> String {
-        if CurrentAppContext().isNSE {
-            return "push"
-        } else if CurrentAppContext().isInBackground() {
-            return "background"
-        } else {
-            return "user"
-        }
-    }
-
     public func log(
         protocol proto: String,
         direction: String,
         method: String? = nil,
         path: String? = nil,
         bodySize: Int? = nil,
-        trigger: String? = nil
+        isCountable: Bool = false,
+        attachPayload: Bool = false
     ) {
-        let resolvedTrigger: String
-        if let trigger {
-            resolvedTrigger = trigger
-        } else {
-            resolvedTrigger = resolveTrigger()
-        }
-
         var entry: [String: Any] = [
             "timestamp": ISO8601DateFormatter().string(from: Date()),
             "protocol": proto,
             "direction": direction,
-            "trigger": resolvedTrigger,
+            "isCountable": isCountable,
+            "attachPayload": attachPayload,
         ]
         if let method {
             entry["method"] = method

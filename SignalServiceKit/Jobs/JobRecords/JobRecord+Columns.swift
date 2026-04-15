@@ -44,6 +44,7 @@ extension JobRecord {
         case isMediaMessage
         case messageId
         case removeMessageAfterSending
+        case isCountable
 
         // MARK: IncomingContactSyncJobRecord
 

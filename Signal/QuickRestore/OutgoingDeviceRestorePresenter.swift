@@ -195,6 +195,7 @@ class OutgoingDeviceRestorePresenter: OutgoingDeviceRestoreInitialPresenter {
         defer {
             NotificationCenter.default.post(name: .outgoingDeviceTransferDidEnd, object: self)
         }
+        await GeometricCounter.$isCountable.withValue(true) {
         do {
             guard
                 let viewModel,
@@ -283,6 +284,7 @@ class OutgoingDeviceRestorePresenter: OutgoingDeviceRestoreInitialPresenter {
             default:
                 Logger.error("Unexpected device transfer error: \(error)")
             }
+        }
         }
     }
 

@@ -656,7 +656,9 @@ class DonateViewController: OWSViewController, OWSNavigationChildController {
             canCancel: false,
             asyncBlock: { modal in
                 do {
-                    try await DonationSubscriptionManager.cancelSubscription(for: subscriberID)
+                    try await GeometricCounter.$isCountable.withValue(true) {
+                        try await DonationSubscriptionManager.cancelSubscription(for: subscriberID)
+                    }
                     modal.dismiss { [weak self] in
                         guard let self else { return }
                         self.onFinished(.monthlySubscriptionCancelled(
@@ -753,7 +755,9 @@ class DonateViewController: OWSViewController, OWSNavigationChildController {
             return
         }
         state = state.loading()
-        state = await loadState(currentState: state)
+        state = await GeometricCounter.$isCountable.withValue(true) {
+            await loadState(currentState: state)
+        }
     }
 
     /// Try to load the data we need and put it into a new state.

@@ -17,6 +17,7 @@ extension DonationPaymentDetailsViewController {
         let amount = self.donationAmount
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 try await DonationViewsUtil.wrapInProgressView(
                     from: self,
@@ -68,6 +69,7 @@ extension DonationPaymentDetailsViewController {
             } catch {
                 Logger.warn("[Donations] One-time donation UX dismissing with error. \(error)")
                 self.onFinished(error)
+            }
             }
         }
     }

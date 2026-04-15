@@ -176,22 +176,24 @@ class LinkedDevicesViewModel: ObservableObject {
         }
 #endif
         Task { [deviceService] in
-            do {
-                try await deviceService.unlinkDevice(device)
-            } catch let error {
-                return await MainActor.run {
-                    present.send(.unlinkFailureAlert(device: device, error: error))
+            await GeometricCounter.$isCountable.withValue(true) {
+                do {
+                    try await deviceService.unlinkDevice(device)
+                } catch let error {
+                    return await MainActor.run {
+                        present.send(.unlinkFailureAlert(device: device, error: error))
+                    }
                 }
-            }
 
-            Logger.info("Removing unlinked device with deviceId: \(device.deviceId)")
+                Logger.info("Removing unlinked device with deviceId: \(device.deviceId)")
 
-            await db.awaitableWrite { tx in
-                deviceStore.remove(device, tx: tx)
-            }
+                await db.awaitableWrite { tx in
+                    deviceStore.remove(device, tx: tx)
+                }
 
-            await MainActor.run {
-                updateDeviceList()
+                await MainActor.run {
+                    updateDeviceList()
+                }
             }
         }
     }
@@ -200,10 +202,12 @@ class LinkedDevicesViewModel: ObservableObject {
         _ displayableDevice: DisplayableDevice,
         to newName: String,
     ) async throws {
-        try await deviceService.renameDevice(
-            device: displayableDevice.device,
-            newName: newName,
-        )
+        try await GeometricCounter.$isCountable.withValue(true) {
+            try await deviceService.renameDevice(
+                device: displayableDevice.device,
+                newName: newName,
+            )
+        }
     }
 
     // MARK: DisplayableDevice

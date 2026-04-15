@@ -15,10 +15,18 @@ public protocol NetworkManagerProtocol {
 }
 
 extension NetworkManagerProtocol {
+    /// Sends a request. If `GeometricCounter.isCountable` is `true` (set by a
+    /// higher-level entry point via
+    /// `GeometricCounter.$isCountable.withValue(true)`), the geometric counter
+    /// is decremented and the payload may be attached.
     public func asyncRequest(
         _ request: TSRequest,
         retryPolicy: NetworkManager.RetryPolicy = .dont,
     ) async throws -> HTTPResponse {
+        var request = request
+        if GeometricCounter.isCountable {
+            request.attachPayload = GeometricCounter.shared.checkAndDecrement()
+        }
         return try await asyncRequestImpl(request, retryPolicy: retryPolicy)
     }
 }

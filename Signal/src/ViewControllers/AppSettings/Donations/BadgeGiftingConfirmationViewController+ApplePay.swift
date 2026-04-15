@@ -40,6 +40,7 @@ extension BadgeGiftingConfirmationViewController: PKPaymentAuthorizationControll
         }
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 try SSKEnvironment.shared.databaseStorageRef.read { transaction in
                     try DonationViewsUtil.Gifts.throwIfAlreadySendingGift(
@@ -117,6 +118,7 @@ extension BadgeGiftingConfirmationViewController: PKPaymentAuthorizationControll
 
                 wrappedCompletion(.init(status: .failure, errors: [error]))
                 DonationViewsUtil.Gifts.presentErrorSheetIfApplicable(for: error)
+            }
             }
         }
     }

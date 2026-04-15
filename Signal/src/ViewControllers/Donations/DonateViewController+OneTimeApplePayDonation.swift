@@ -24,6 +24,7 @@ extension DonateViewController {
         let boostBadge = oneTime.profileBadge
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             let confirmedIntent: Stripe.ConfirmedPaymentIntent
             do {
                 confirmedIntent = try await Stripe.boost(
@@ -66,6 +67,7 @@ extension DonateViewController {
                     paymentMethod: .applePay,
                 )
             }
+            } // withValue
         }
     }
 }

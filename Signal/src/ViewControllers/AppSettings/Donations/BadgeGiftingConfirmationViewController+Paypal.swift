@@ -20,6 +20,7 @@ extension BadgeGiftingConfirmationViewController {
 
         let threadId = self.thread.uniqueId
         Task.detached(priority: .userInitiated) {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 try SSKEnvironment.shared.databaseStorageRef.read { transaction in
                     try DonationViewsUtil.Gifts.throwIfAlreadySendingGift(threadId: threadId, transaction: transaction)
@@ -55,6 +56,7 @@ extension BadgeGiftingConfirmationViewController {
             } catch {
                 owsFailDebug("[Gifting] Expected a SendGiftError but got \(error)")
                 DonationViewsUtil.Gifts.presentErrorSheetIfApplicable(for: mightHaveBeenCharged ? .failedAndUserMaybeCharged : .failedAndUserNotCharged)
+            }
             }
         }
     }

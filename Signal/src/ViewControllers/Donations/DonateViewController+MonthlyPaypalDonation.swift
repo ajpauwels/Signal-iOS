@@ -22,6 +22,7 @@ extension DonateViewController {
         }
 
         Task {
+            await GeometricCounter.$isCountable.withValue(true) {
             do {
                 Logger.info("[Donations] Starting monthly PayPal donation")
                 let (subscriberId, authorizationParams) = try await self.preparePaypalSubscriptionBehindActivityIndicator(
@@ -58,6 +59,7 @@ extension DonateViewController {
                     badge: selectedSubscriptionLevel.badge,
                     paymentMethod: .paypal,
                 )
+            }
             }
         }
     }
