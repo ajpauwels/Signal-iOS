@@ -42,6 +42,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         static let appLaunchesAttemptedKey = "AppLaunchesAttempted"
     }
 
+    // MARK: - Execution Logging
+
+    private var foregroundSessionId: UUID?
+
     // MARK: - Lifecycle
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -52,6 +56,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         AssertIsOnMainThread()
         if CurrentAppContext().isRunningTests {
             return
+        }
+
+        if foregroundSessionId == nil {
+            foregroundSessionId = ExecutionLogger.shared.logStart(entryPoint: "foregroundSession", target: "mainApp")
         }
 
         Logger.warn("")
@@ -100,6 +108,11 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
+        if let sessionId = foregroundSessionId {
+            ExecutionLogger.shared.logEnd(id: sessionId, entryPoint: "foregroundSession", target: "mainApp")
+            foregroundSessionId = nil
+        }
+
         Logger.info("")
 
         if shouldKillAppWhenBackgrounded {
@@ -1605,8 +1618,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             Logger.info("")
         }
 
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "silentPush", target: "mainApp")
         Task {
             defer {
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "silentPush", target: "mainApp")
                 // TODO: Report the actual outcome.
                 completionHandler(.newData)
             }
@@ -1963,9 +1978,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void,
     ) {
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "notificationResponse", target: "mainApp")
         let startDate = MonotonicDate()
         Task { @MainActor [appReadiness] () -> Void in
-            defer { completionHandler() }
+            defer {
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "notificationResponse", target: "mainApp")
+                completionHandler()
+            }
 
             do {
                 try await self.appReadiness.waitForAppReady()

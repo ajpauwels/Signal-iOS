@@ -1772,6 +1772,7 @@
 		A1A018521805C5E800A052A6 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11CD70C17FA230600A2D1B1 /* QuartzCore.framework */; };
 		A1A018531805C60D00A052A6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D221A091169C9E5E00537ABF /* CoreGraphics.framework */; };
 		A5E7C675248C5443007C949A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5E7C673248C5442007C949A /* InfoPlist.strings */; };
+		ACAE3D182F9C515B00EC68B0 /* ExecutionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAE3D172F9C515B00EC68B0 /* ExecutionLogger.swift */; };
 		ACB4FDBD2F3F29D700C8FA34 /* NetworkRequestLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB4FDBC2F3F29D700C8FA34 /* NetworkRequestLogger.swift */; };
 		ACB4FDBF2F3F5EFD00C8FA34 /* GeometricCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB4FDBE2F3F5EFD00C8FA34 /* GeometricCounter.swift */; };
 		B60EDE041A05A01700D73516 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B60EDE031A05A01700D73516 /* AudioToolbox.framework */; };
@@ -6101,6 +6102,7 @@
 		A566C0C0B69138202C0367E6 /* Pods-Signal.app store release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Signal.app store release.xcconfig"; path = "Target Support Files/Pods-Signal/Pods-Signal.app store release.xcconfig"; sourceTree = "<group>"; };
 		A5E7C674248C5442007C949A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = translations/en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A780A90C5DDC028939E97635 /* LowDiskSpaceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LowDiskSpaceManager.swift; sourceTree = "<group>"; };
+		ACAE3D172F9C515B00EC68B0 /* ExecutionLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutionLogger.swift; sourceTree = "<group>"; };
 		ACB4FDBC2F3F29D700C8FA34 /* NetworkRequestLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestLogger.swift; sourceTree = "<group>"; };
 		ACB4FDBE2F3F5EFD00C8FA34 /* GeometricCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometricCounter.swift; sourceTree = "<group>"; };
 		B3F39202F831935AAE1C5F54 /* Pods_SignalUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SignalUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -15628,6 +15630,7 @@
 				F9C5CAC4289453B200548EEE /* ChatConnectionManager.swift */,
 				509A8DC12E25817E0024BF14 /* ConnectionLock.swift */,
 				F9C5CAF7289453B200548EEE /* ContentProxy.swift */,
+				ACAE3D172F9C515B00EC68B0 /* ExecutionLogger.swift */,
 				F9C5CAF2289453B200548EEE /* HttpHeaders.swift */,
 				727328042CA6619A0080E2C7 /* HttpSecurityPolicy.swift */,
 				F9C5CAF1289453B200548EEE /* NetworkInterfaceSet.swift */,
@@ -19867,6 +19870,7 @@
 				C13B9BB62A1819C7007F74C4 /* OutgoingEditMessage.swift in Sources */,
 				C1EAECDF2A1EFC21008A3D58 /* OutgoingEditMessageSyncTranscript.swift in Sources */,
 				50C55EB82F1B0EFC00BA8309 /* OutgoingFetchLatestSyncMessage.swift in Sources */,
+				ACAE3D182F9C515B00EC68B0 /* ExecutionLogger.swift in Sources */,
 				D9AA37A42A8A9A910088EFFB /* OutgoingGroupCallUpdateMessage.swift in Sources */,
 				F96A534328A1AE7C003262D4 /* OutgoingGroupUpdateMessage.swift in Sources */,
 				50C55EBA2F1B129000BA8309 /* OutgoingKeysSyncMessage.swift in Sources */,

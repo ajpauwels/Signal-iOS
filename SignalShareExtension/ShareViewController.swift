@@ -31,12 +31,16 @@ public class ShareViewController: OWSNavigationController, ShareViewDelegate {
 
     private var initialLoadViewController: SAELoadViewController?
 
+    private var shareSessionId: UUID?
+
     override open func loadView() {
         super.loadView()
 
         // This should be the first thing we do.
         let appContext = ShareAppExtensionContext(rootViewController: self)
         SetCurrentAppContext(appContext, isRunningTests: false)
+
+        shareSessionId = ExecutionLogger.shared.logStart(entryPoint: "shareExtension", target: "shareExtension")
 
         let debugLogger = DebugLogger.shared
         debugLogger.enableTTYLoggingIfNeeded()
@@ -348,6 +352,11 @@ public class ShareViewController: OWSNavigationController, ShareViewDelegate {
 
     private func dismissAndCompleteExtension(error: Error?) {
         AssertIsOnMainThread()
+
+        if let sessionId = shareSessionId {
+            ExecutionLogger.shared.logEnd(id: sessionId, entryPoint: "shareExtension", target: "shareExtension")
+            shareSessionId = nil
+        }
 
         let extensionContext = self.extensionContext
         if let error {
