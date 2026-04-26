@@ -105,6 +105,7 @@ public class MessageFetchBGRefreshTask {
 
     private func performTask(_ task: BGTask) {
         Logger.info("performing background fetch")
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "bgRefreshTask.MessageFetchBGRefreshTask", target: "mainApp")
         Task {
             let backgroundMessageFetcher = self.backgroundMessageFetcherFactory.buildFetcher()
             let result = await Result {
@@ -119,9 +120,11 @@ public class MessageFetchBGRefreshTask {
             do {
                 try result.get()
                 Logger.info("success")
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "bgRefreshTask.MessageFetchBGRefreshTask", target: "mainApp")
                 task.setTaskCompleted(success: true)
             } catch {
                 Logger.error("Failing task; failed to fetch messages")
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "bgRefreshTask.MessageFetchBGRefreshTask", target: "mainApp")
                 task.setTaskCompleted(success: false)
             }
         }
