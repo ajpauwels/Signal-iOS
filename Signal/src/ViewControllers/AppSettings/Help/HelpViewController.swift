@@ -83,6 +83,15 @@ final class HelpViewController: OWSTableViewController2 {
                 AttachmentSharing.showShareUI(for: url)
             },
         ))
+        loggingSection.add(.item(
+            name: "Export Entrypoint Log",
+            accessibilityIdentifier: UIView.accessibilityIdentifier(in: self, name: "export_entrypoint_log"),
+            actionBlock: {
+                let url = ExecutionLogger.shared.logFileUrl
+                guard FileManager.default.fileExists(atPath: url.path) else { return }
+                AttachmentSharing.showShareUI(for: url)
+            },
+        ))
         contents.add(loggingSection)
 
         let aboutSection = OWSTableSection()

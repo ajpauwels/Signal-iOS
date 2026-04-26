@@ -64,6 +64,8 @@ extension BGProcessingTaskRunner where Self: Sendable {
             forTaskWithIdentifier: Self.taskIdentifier,
             using: nil,
             launchHandler: { bgTask in
+                let entryPointName = "bgProcessingTask.\(Self.taskIdentifier)"
+                let executionId = ExecutionLogger.shared.logStart(entryPoint: entryPointName, target: "mainApp")
                 let task = Task {
                     await withCheckedContinuation { continuation in
                         appReadiness.runNowOrWhenAppDidBecomeReadyAsync { continuation.resume() }
@@ -75,6 +77,7 @@ extension BGProcessingTaskRunner where Self: Sendable {
                         logger.info("Success!")
                         await scheduleBGProcessingTaskIfNeeded()
                         logger.info("Re-scheduled.")
+                        ExecutionLogger.shared.logEnd(id: executionId, entryPoint: entryPointName, target: "mainApp")
                         bgTask.setTaskCompleted(success: true)
                     } catch is CancellationError {
                         // Re-schedule so we try to run it again. We do this unconditionally
@@ -83,6 +86,7 @@ extension BGProcessingTaskRunner where Self: Sendable {
 
                         // Apple WWDC talk specifies tasks must be completed even if the expiration
                         // handler is called.
+                        ExecutionLogger.shared.logEnd(id: executionId, entryPoint: entryPointName, target: "mainApp")
                         bgTask.setTaskCompleted(success: false)
                     } catch let error as BGProcessingTaskRescheduleOnCatch {
                         logger.info("Rescheduling due to \(error).")
@@ -93,6 +97,7 @@ extension BGProcessingTaskRunner where Self: Sendable {
                         bgTask.setTaskCompleted(success: false)
                     } catch {
                         logger.warn("Failed with error. \(error)")
+                        ExecutionLogger.shared.logEnd(id: executionId, entryPoint: entryPointName, target: "mainApp")
                         bgTask.setTaskCompleted(success: false)
                     }
                 }
