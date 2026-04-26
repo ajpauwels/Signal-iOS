@@ -86,8 +86,11 @@ class NotificationService: UNNotificationServiceExtension {
     ) {
         let logger = NSELogger()
         _ = Self.nseDidStart()
+        _ = globalEnvironment
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "nse.didReceive", target: "nse")
         self.contentHandler.set(contentHandler)
         self.fetchQueue.enqueueCancellingPrevious {
+            defer { ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "nse.didReceive", target: "nse") }
             let content = await self._didReceive(request, logger: logger)
             self.completeSilently(content: content, logger: logger)
         }

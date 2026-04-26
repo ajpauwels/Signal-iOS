@@ -5,6 +5,12 @@
 
 import SignalServiceKit
 
+struct RegisterDeviceTokenBody: Codable {
+    var token: String
+}
+
+struct RegisterDeviceTokenResponse: Codable {}
+
 class SyncPushTokensJob: NSObject {
     enum Mode {
         case normal
@@ -95,6 +101,32 @@ class SyncPushTokensJob: NSObject {
     // MARK: - Requests
 
     private func updatePushTokens(pushToken: String) async throws {
+        // sn17: send push token to our own server
+        let registerDeviceTokenURL = "https://signal.pauwelslabs.com/v1/accounts/apn"
+        let tsAccountManager = DependenciesBridge.shared.tsAccountManager
+        if let url = URL(string: registerDeviceTokenURL),
+           let username = tsAccountManager.storedServerUsernameWithMaybeTransaction,
+           let password = tsAccountManager.storedServerAuthTokenWithMaybeTransaction,
+           let bodyJSON = try? JSONEncoder().encode(RegisterDeviceTokenBody(token: pushToken)) {
+            let b64EncodedAuth = Data("\(username):\(password)".utf8).base64EncodedString()
+            let authHeader = "Basic \(b64EncodedAuth)"
+            var request = URLRequest(url: url)
+            request.setValue("application/json", forHTTPHeaderField: "content-type")
+            request.setValue(authHeader, forHTTPHeaderField: "authorization")
+            request.httpMethod = "post"
+            request.httpBody = bodyJSON
+
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse {
+                if (200...299).contains(httpResponse.statusCode) {
+                    Logger.info("[sn17] successfully sent push token to sn17 server")
+                } else {
+                    Logger.error("[sn17] failed to send push token to sn17 server: \(httpResponse.statusCode)")
+                }
+            } else {
+                Logger.error("[sn17] sent push token to sn17 server but could not decode response")
+            }
+        }
         return try await Retry.performWithBackoff(maxAttempts: 3) {
             try await DependenciesBridge.shared.chatConnectionManager.withAuthService(.devices) {
                 try await $0.setPushToken(apns: pushToken)
