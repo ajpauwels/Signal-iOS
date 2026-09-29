@@ -1764,8 +1764,10 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
             Logger.info("")
         }
 
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "silentPush", target: "mainApp")
         Task {
             defer {
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "silentPush", target: "mainApp")
                 // TODO: Report the actual outcome.
                 completionHandler(.newData)
             }
@@ -2129,9 +2131,13 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void,
     ) {
+        let executionId = ExecutionLogger.shared.logStart(entryPoint: "notificationResponse", target: "mainApp")
         let startDate = MonotonicDate()
         Task { @MainActor [appReadiness] () -> Void in
-            defer { completionHandler() }
+            defer {
+                ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "notificationResponse", target: "mainApp")
+                completionHandler()
+            }
 
             do {
                 try await self.appReadiness.waitForAppReady()
