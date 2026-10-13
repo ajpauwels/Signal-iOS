@@ -9,9 +9,7 @@ public class ExecutionLogger {
 
     public static let shared = ExecutionLogger()
 
-    private let queue = DispatchQueue(label: "org.signal.execution-logger")
-
-    private let logFileURL: URL
+    private let writer: JSONLineLogWriter
 
     private static let formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
@@ -21,10 +19,11 @@ public class ExecutionLogger {
 
     private init() {
         let directory = OWSFileSystem.appSharedDataDirectoryPath()
-        logFileURL = URL(fileURLWithPath: directory).appendingPathComponent("execution-log.jsonl")
+        let url = URL(fileURLWithPath: directory).appendingPathComponent("execution-log.jsonl")
+        writer = JSONLineLogWriter(fileURL: url, queueLabel: "org.signal.execution-logger")
     }
 
-    public var logFileUrl: URL { logFileURL }
+    public var logFileUrl: URL { writer.fileURL }
 
     @discardableResult
     public func logStart(entryPoint: String, target: String) -> UUID {
@@ -46,20 +45,6 @@ public class ExecutionLogger {
             "timestamp": Self.formatter.string(from: Date()),
         ]
 
-        queue.async { [logFileURL] in
-            guard let data = try? JSONSerialization.data(withJSONObject: entry),
-                  var line = String(data: data, encoding: .utf8) else {
-                return
-            }
-            line.append("\n")
-
-            if let handle = try? FileHandle(forWritingTo: logFileURL) {
-                handle.seekToEndOfFile()
-                handle.write(line.data(using: .utf8)!)
-                handle.closeFile()
-            } else {
-                try? line.data(using: .utf8)?.write(to: logFileURL, options: .atomic)
-            }
-        }
+        writer.append(entry)
     }
 }

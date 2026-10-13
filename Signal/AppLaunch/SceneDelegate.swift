@@ -17,6 +17,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    // Tracks the current foreground session for `ExecutionLogger`. The scene
+    // can become active multiple times (e.g. after a transient interruption)
+    // before backgrounding, so we only open a new session when one isn't
+    // already in flight.
+    private var foregroundSessionId: UUID?
+
     // MARK: - Lifecycle
 
     // Matches the deprecation on `handle(userActivity:)`, called below, so
@@ -59,6 +65,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
+        if foregroundSessionId == nil {
+            foregroundSessionId = ExecutionLogger.shared.logStart(entryPoint: "foregroundSession", target: "mainApp")
+        }
         lifecycleManager.didBecomeActive()
     }
 
@@ -67,6 +76,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
+        if let sessionId = foregroundSessionId {
+            ExecutionLogger.shared.logEnd(id: sessionId, entryPoint: "foregroundSession", target: "mainApp")
+            foregroundSessionId = nil
+        }
         lifecycleManager.didEnterBackground()
     }
 
