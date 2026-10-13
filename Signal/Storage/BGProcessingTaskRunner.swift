@@ -94,6 +94,7 @@ extension BGProcessingTaskRunner where Self: Sendable {
 
                         // Apple WWDC talk specifies tasks must be completed even if the expiration
                         // handler is called.
+                        ExecutionLogger.shared.logEnd(id: executionId, entryPoint: entryPointName, target: "mainApp")
                         bgTask.setTaskCompleted(success: false)
                     } catch {
                         logger.warn("Failed with error. \(error)")

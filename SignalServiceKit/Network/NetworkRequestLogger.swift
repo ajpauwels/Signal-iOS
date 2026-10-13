@@ -9,16 +9,15 @@ public class NetworkRequestLogger {
 
     public static let shared = NetworkRequestLogger()
 
-    private let queue = DispatchQueue(label: "org.signal.network-request-logger")
-
-    private let logFileURL: URL
+    private let writer: JSONLineLogWriter
 
     private init() {
         let directory = OWSFileSystem.appSharedDataDirectoryPath()
-        logFileURL = URL(fileURLWithPath: directory).appendingPathComponent("network-request-log.jsonl")
+        let url = URL(fileURLWithPath: directory).appendingPathComponent("network-request-log.jsonl")
+        writer = JSONLineLogWriter(fileURL: url, queueLabel: "org.signal.network-request-logger")
     }
 
-    public var logFileUrl: URL { logFileURL }
+    public var logFileUrl: URL { writer.fileURL }
 
     public func resolveTrigger() -> String {
         if CurrentAppContext().isNSE {
@@ -61,20 +60,6 @@ public class NetworkRequestLogger {
             entry["bodySize"] = bodySize
         }
 
-        queue.async { [logFileURL] in
-            guard let data = try? JSONSerialization.data(withJSONObject: entry),
-                  var line = String(data: data, encoding: .utf8) else {
-                return
-            }
-            line.append("\n")
-
-            if let handle = try? FileHandle(forWritingTo: logFileURL) {
-                handle.seekToEndOfFile()
-                handle.write(line.data(using: .utf8)!)
-                handle.closeFile()
-            } else {
-                try? line.data(using: .utf8)?.write(to: logFileURL, options: .atomic)
-            }
-        }
+        writer.append(entry)
     }
 }

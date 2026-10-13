@@ -13,24 +13,9 @@ import UIKit
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    // MARK: - Execution Logging
-    private var foregroundSessionId: UUID?
-    
     private let lifecycleManager = AppLifecycleManager.shared
 
     // MARK: - Lifecycle
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        if foregroundSessionId == nil {
-            foregroundSessionId = ExecutionLogger.shared.logStart(entryPoint: "foregroundSession", target: "mainApp")
-        }
-    }
-    
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        if let sessionId = foregroundSessionId {
-            ExecutionLogger.shared.logEnd(id: sessionId, entryPoint: "foregroundSession", target: "mainApp")
-            foregroundSessionId = nil
-        }
-    }
 
     func application(
         _ application: UIApplication,
