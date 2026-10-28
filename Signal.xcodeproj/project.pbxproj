@@ -721,6 +721,7 @@
 		502D9AA4303CC73700FA0D7D /* SenderKeyExpirationJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502D9AA3303CC73700FA0D7D /* SenderKeyExpirationJob.swift */; };
 		502E586D3040BED600D30164 /* AnyGroupIdentifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502E586C3040BED600D30164 /* AnyGroupIdentifierTest.swift */; };
 		502F187F2D5530AA00A1BD62 /* LazyDatabaseMigratorRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502F187E2D5530AA00A1BD62 /* LazyDatabaseMigratorRunner.swift */; };
+		5A7E3C0B2E5B10010001AA02 /* TestSchedulingLimitsBGProcessingTaskRunners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7E3C0A2E5B10010001AA01 /* TestSchedulingLimitsBGProcessingTaskRunners.swift */; };
 		50311B8B2BC0C2A100AE5A5F /* MonotonicDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50311B8A2BC0C2A100AE5A5F /* MonotonicDate.swift */; };
 		503158F22B57B0010023A5DB /* ServiceIdTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503158F12B57B0010023A5DB /* ServiceIdTest.swift */; };
 		5033D45F29D4DAAC007FEADA /* ThreadMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5033D45E29D4DAAC007FEADA /* ThreadMerger.swift */; };
@@ -5203,6 +5204,7 @@
 		502D9AA3303CC73700FA0D7D /* SenderKeyExpirationJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenderKeyExpirationJob.swift; sourceTree = "<group>"; };
 		502E586C3040BED600D30164 /* AnyGroupIdentifierTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyGroupIdentifierTest.swift; sourceTree = "<group>"; };
 		502F187E2D5530AA00A1BD62 /* LazyDatabaseMigratorRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyDatabaseMigratorRunner.swift; sourceTree = "<group>"; };
+		5A7E3C0A2E5B10010001AA01 /* TestSchedulingLimitsBGProcessingTaskRunners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSchedulingLimitsBGProcessingTaskRunners.swift; sourceTree = "<group>"; };
 		50311B8A2BC0C2A100AE5A5F /* MonotonicDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonotonicDate.swift; sourceTree = "<group>"; };
 		503158F12B57B0010023A5DB /* ServiceIdTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIdTest.swift; sourceTree = "<group>"; };
 		5033D45E29D4DAAC007FEADA /* ThreadMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadMerger.swift; sourceTree = "<group>"; };
@@ -10350,6 +10352,7 @@
 				F9F0B53E2982D7800012C590 /* FullTextSearchOptimizer.swift */,
 				D97046052E81D41F0034C05D /* InfoMessageGroupUpdateMigrator.swift */,
 				502F187E2D5530AA00A1BD62 /* LazyDatabaseMigratorRunner.swift */,
+				5A7E3C0A2E5B10010001AA01 /* TestSchedulingLimitsBGProcessingTaskRunners.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -19320,6 +19323,7 @@
 				45C845AD291466C0005F6EA5 /* JournalingOrderedDictionary.swift in Sources */,
 				5045F44229E0DB7100058E5F /* LaunchJobs.swift in Sources */,
 				502F187F2D5530AA00A1BD62 /* LazyDatabaseMigratorRunner.swift in Sources */,
+				5A7E3C0B2E5B10010001AA02 /* TestSchedulingLimitsBGProcessingTaskRunners.swift in Sources */,
 				D92CA9EF2F500EA500FDE32D /* LeaveGroupCoordinator.swift in Sources */,
 				B9E02DF02D974F2B00C9DDF8 /* LimitedPhotoPermissionsView.swift in Sources */,
 				B97803012DD65B0A00E9FC82 /* LinearProgressView.swift in Sources */,

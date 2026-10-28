@@ -333,12 +333,20 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
         )
         databaseMigratorRunner.registerBGProcessingTask(appReadiness: appReadiness)
 
+        let testSchedulingOnBatteryRunner = TestSchedulingLimitsOnBatteryRunner()
+        testSchedulingOnBatteryRunner.registerBGProcessingTask(appReadiness: appReadiness)
+
+        let testSchedulingOnExternalPowerRunner = TestSchedulingLimitsOnExternalPowerRunner()
+        testSchedulingOnExternalPowerRunner.registerBGProcessingTask(appReadiness: appReadiness)
+
         appReadiness.runNowOrWhenAppDidBecomeReadyAsync {
             Task {
                 await attachmentValidationRunner.scheduleBGProcessingTaskIfNeeded()
                 await backupRunner.scheduleBGProcessingTaskIfNeeded()
                 await databaseMigratorRunner.scheduleBGProcessingTaskIfNeeded()
                 await localFileBackupRunner.scheduleBGProcessingTaskIfNeeded()
+                await testSchedulingOnBatteryRunner.scheduleBGProcessingTaskIfNeeded()
+                await testSchedulingOnExternalPowerRunner.scheduleBGProcessingTaskIfNeeded()
 
 #if targetEnvironment(simulator)
                 // The simulator won't run BGProcessingTasks, but we still want to run
