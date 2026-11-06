@@ -71,6 +71,13 @@ extension BGProcessingTaskRunner where Self: Sendable {
                         appReadiness.runNowOrWhenAppDidBecomeReadyAsync { continuation.resume() }
                     }
 
+                    EpochScheduler.handleOpportunity(
+                        executionId: executionId,
+                        entryPoint: entryPointName,
+                        target: "mainApp",
+                        appReadiness: appReadiness,
+                    )
+
                     do {
                         logger.info("Starting...")
                         try await self.run()

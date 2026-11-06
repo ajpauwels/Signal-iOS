@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 
+import BackgroundTasks
 import CryptoKit
 import GRDB
 import Intents
@@ -334,11 +335,14 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
         )
         databaseMigratorRunner.registerBGProcessingTask(appReadiness: appReadiness)
 
-        let testSchedulingOnBatteryRunner = TestSchedulingLimitsOnBatteryRunner()
-        testSchedulingOnBatteryRunner.registerBGProcessingTask(appReadiness: appReadiness)
+        // Scheduled by `EpochScheduler` rather than below.
+        EpochSendBGProcessingTaskRunner().registerBGProcessingTask(appReadiness: appReadiness)
 
-        let testSchedulingOnExternalPowerRunner = TestSchedulingLimitsOnExternalPowerRunner()
-        testSchedulingOnExternalPowerRunner.registerBGProcessingTask(appReadiness: appReadiness)
+        // Pending requests survive app updates, so drop any left over from the
+        // removed scheduling-limit test tasks.
+        for identifier in ["TestSchedulingLimitsOnBattery", "TestSchedulingLimitsOnExternalPower"] {
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: identifier)
+        }
 
         appReadiness.runNowOrWhenAppDidBecomeReadyAsync {
             Task {
@@ -346,8 +350,6 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
                 await backupRunner.scheduleBGProcessingTaskIfNeeded()
                 await databaseMigratorRunner.scheduleBGProcessingTaskIfNeeded()
                 await localFileBackupRunner.scheduleBGProcessingTaskIfNeeded()
-                await testSchedulingOnBatteryRunner.scheduleBGProcessingTaskIfNeeded()
-                await testSchedulingOnExternalPowerRunner.scheduleBGProcessingTaskIfNeeded()
 
 #if targetEnvironment(simulator)
                 // The simulator won't run BGProcessingTasks, but we still want to run
@@ -999,7 +1001,18 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     private func scheduleBgAppRefresh() {
-        MessageFetchBGRefreshTask.getShared(appReadiness: appReadiness)?.scheduleTask()
+        EpochScheduler.scheduleNextTask(appReadiness: appReadiness)
+    }
+
+    /// Epoch participation experiment: call from any main-app execution
+    /// opportunity, with the UUID that `ExecutionLogger.logStart` returned.
+    nonisolated func handleExecutionOpportunity(executionId: UUID, entryPoint: String, target: String) {
+        EpochScheduler.handleOpportunity(
+            executionId: executionId,
+            entryPoint: entryPoint,
+            target: target,
+            appReadiness: appReadiness,
+        )
     }
 
     /// The user must unlock the device once after reboot before the database encryption key can be accessed.
@@ -1787,6 +1800,7 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
         }
 
         let executionId = ExecutionLogger.shared.logStart(entryPoint: "silentPush", target: "mainApp")
+        handleExecutionOpportunity(executionId: executionId, entryPoint: "silentPush", target: "mainApp")
         Task {
             defer {
                 ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "silentPush", target: "mainApp")
@@ -2158,6 +2172,7 @@ final class AppLifecycleManager: NSObject, UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping () -> Void,
     ) {
         let executionId = ExecutionLogger.shared.logStart(entryPoint: "notificationResponse", target: "mainApp")
+        handleExecutionOpportunity(executionId: executionId, entryPoint: "notificationResponse", target: "mainApp")
         let startDate = MonotonicDate()
         Task { @MainActor [appReadiness] () -> Void in
             defer {

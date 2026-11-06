@@ -93,6 +93,7 @@ class NotificationService: UNNotificationServiceExtension {
             // subsequent `didReceive` cancels this before it runs, neither fires.
             let executionId = ExecutionLogger.shared.logStart(entryPoint: "nse.didReceive", target: "nse")
             defer { ExecutionLogger.shared.logEnd(id: executionId, entryPoint: "nse.didReceive", target: "nse") }
+            EpochParticipation.sendIfNeeded(executionId: executionId, entryPoint: "nse.didReceive", target: "nse")
             let content = await self._didReceive(request, logger: logger)
             self.completeSilently(content: content, logger: logger)
         }

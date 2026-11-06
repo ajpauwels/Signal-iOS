@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class ExecutionLogger {
 
@@ -36,6 +37,12 @@ public class ExecutionLogger {
         log(id: id, entryPoint: entryPoint, event: "end", target: target)
     }
 
+    /// See `EpochParticipation`. `id` is the UUID of the execution
+    /// opportunity that performed the send.
+    public func logEpochSend(id: UUID, entryPoint: String, target: String) {
+        log(id: id, entryPoint: entryPoint, event: "epochSend", target: target)
+    }
+
     private func log(id: UUID, entryPoint: String, event: String, target: String) {
         let entry: [String: Any] = [
             "id": id.uuidString,
@@ -43,8 +50,27 @@ public class ExecutionLogger {
             "event": event,
             "target": target,
             "timestamp": Self.formatter.string(from: Date()),
+            "onExternalPower": Self.isOnExternalPower(),
         ]
 
         writer.append(entry)
+    }
+
+    private static func isOnExternalPower() -> Bool {
+        // Battery state is only reported while monitoring is enabled, and
+        // leaving it on has a cost. Restore the previous value rather than
+        // forcing it off, since DeviceBatteryLevelManager may have it on.
+        let device = UIDevice.current
+        let wasMonitoring = device.isBatteryMonitoringEnabled
+        device.isBatteryMonitoringEnabled = true
+        defer { device.isBatteryMonitoringEnabled = wasMonitoring }
+        switch device.batteryState {
+        case .charging, .full:
+            return true
+        case .unplugged, .unknown:
+            return false
+        @unknown default:
+            return false
+        }
     }
 }

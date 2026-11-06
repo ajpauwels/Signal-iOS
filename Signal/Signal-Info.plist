@@ -9,8 +9,7 @@
 		<string>BackupBGProcessingTaskRunner</string>
 		<string>MessageFetchBGRefreshTask</string>
 		<string>LazyDatabaseMigratorTask</string>
-		<string>TestSchedulingLimitsOnBattery</string>
-		<string>TestSchedulingLimitsOnExternalPower</string>
+		<string>EpochSendBGProcessingTask</string>
 	</array>
 	<key>BuildDetails</key>
 	<dict/>
