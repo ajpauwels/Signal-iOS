@@ -66,7 +66,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         if foregroundSessionId == nil {
-            foregroundSessionId = ExecutionLogger.shared.logStart(entryPoint: "foregroundSession", target: "mainApp")
+            let sessionId = ExecutionLogger.shared.logStart(entryPoint: "foregroundSession", target: "mainApp")
+            foregroundSessionId = sessionId
+            lifecycleManager.handleExecutionOpportunity(executionId: sessionId, entryPoint: "foregroundSession", target: "mainApp")
         }
         lifecycleManager.didBecomeActive()
     }
@@ -77,6 +79,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         if let sessionId = foregroundSessionId {
+            // A long foreground session can cross an epoch boundary, so
+            // backgrounding is a second opportunity under the same session.
+            lifecycleManager.handleExecutionOpportunity(executionId: sessionId, entryPoint: "foregroundSession", target: "mainApp")
             ExecutionLogger.shared.logEnd(id: sessionId, entryPoint: "foregroundSession", target: "mainApp")
             foregroundSessionId = nil
         }

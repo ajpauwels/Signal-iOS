@@ -40,7 +40,9 @@ public class ShareViewController: OWSNavigationController, ShareViewDelegate {
         let appContext = ShareAppExtensionContext(rootViewController: self)
         SetCurrentAppContext(appContext, isRunningTests: false)
 
-        shareSessionId = ExecutionLogger.shared.logStart(entryPoint: "shareExtension", target: "shareExtension")
+        let sessionId = ExecutionLogger.shared.logStart(entryPoint: "shareExtension", target: "shareExtension")
+        shareSessionId = sessionId
+        EpochParticipation.sendIfNeeded(executionId: sessionId, entryPoint: "shareExtension", target: "shareExtension")
 
         let debugLogger = DebugLogger.shared
         debugLogger.enableTTYLoggingIfNeeded()

@@ -62,7 +62,7 @@ public class MessageFetchBGRefreshTask {
             using: nil,
             launchHandler: { task in
                 appReadiness.runNowOrWhenAppDidBecomeReadyAsync {
-                    Self.getShared(appReadiness: appReadiness)!.performTask(task)
+                    Self.getShared(appReadiness: appReadiness)!.performTask(task, appReadiness: appReadiness)
                 }
             },
         )
@@ -77,12 +77,12 @@ public class MessageFetchBGRefreshTask {
             return
         }
 
-        // Ideally, we would schedule this for N hours _since we last talked to the chat server_.
-        // Without knowing that, we risk scheduling this 24 hours out over and over every time you
-        // launch the app without internet. That scenario is unlikely, so is left unhandled.
-        let refreshInterval: TimeInterval = RemoteConfig.current.backgroundRefreshInterval
+        // Epoch participation experiment (see `EpochParticipation`): aim for
+        // the start of the next epoch. For night epochs
+        // `EpochSendBGProcessingTaskRunner` is submitted as well, since iOS is
+        // unlikely to run an app refresh task while the phone is idle.
         let request = BGAppRefreshTaskRequest(identifier: Self.taskIdentifier)
-        request.earliestBeginDate = dateProvider().addingTimeInterval(refreshInterval)
+        request.earliestBeginDate = EpochParticipation.nextEpochStart(after: dateProvider())
 
         do {
             try BGTaskScheduler.shared.submit(request)
@@ -103,9 +103,15 @@ public class MessageFetchBGRefreshTask {
         }
     }
 
-    private func performTask(_ task: BGTask) {
+    private func performTask(_ task: BGTask, appReadiness: AppReadiness) {
         Logger.info("performing background fetch")
         let executionId = ExecutionLogger.shared.logStart(entryPoint: "bgRefreshTask.MessageFetchBGRefreshTask", target: "mainApp")
+        EpochScheduler.handleOpportunity(
+            executionId: executionId,
+            entryPoint: "bgRefreshTask.MessageFetchBGRefreshTask",
+            target: "mainApp",
+            appReadiness: appReadiness,
+        )
         Task {
             let backgroundMessageFetcher = self.backgroundMessageFetcherFactory.buildFetcher()
             let result = await Result {
